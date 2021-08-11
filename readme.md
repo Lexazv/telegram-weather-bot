@@ -1,6 +1,5 @@
 # Telegram Weather Bot description
 
----
 Test version of Telegram Weather Bot. This Bot receives information from user and replies with daily weather forecast.</br>
 
 Currently in development, using [PyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI). </br>
@@ -8,7 +7,6 @@ Currently in development, using [PyTelegramBotAPI](https://github.com/eternnoir/
 This Bot receives weather information from [OpenWeather](https://openweathermap.org/).
 ## How to send information
 
----
 There are three ways for user to send information:</br>
 
 1. Send a city name (can be sent in any language, not only English).</br>
@@ -16,7 +14,6 @@ There are three ways for user to send information:</br>
 3. Send GPS location.</br>
 ## Received information
 
----
 Bot replies to user message by sending a daily weather forecast in **metric units** with information, listed below.</br>
 
 - Location name
@@ -29,7 +26,6 @@ Bot replies to user message by sending a daily weather forecast in **metric unit
 - Wind speed
 ## Config file description
 
----
 ### Config file structure:
 
 ```
