@@ -16,21 +16,6 @@ bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
 
-@app.route('/' + BOT_TOKEN, methods=['POST'])
-def get_upadtes():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return '!', 200
-
-
-@app.route('/')
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url=APP_URL.format(BOT_TOKEN))
-    return '!', 200
-
-
 logging.basicConfig(
     level=logging.WARNING,
     filename="weather_bot_logfile.log",
@@ -169,6 +154,21 @@ def send_additional_forecast(call):
     except ConnectionError:
         logging.critical("Wrong URL request")
         bot.reply_to(call.message, bot_phrases["connection error"])
+
+
+@app.route('/' + BOT_TOKEN, methods=['POST'])
+def get_upadtes():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return '!', 200
+
+
+@app.route('/')
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url=APP_URL.format(BOT_TOKEN))
+    return '!', 200
 
 
 if __name__ == '__main__':
