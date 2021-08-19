@@ -10,11 +10,12 @@ bot_phrases = {
               "3. Send your GPS location. In that case, Bot will send you a forecast for your current location.\n"
               "Bot takes weather information from https://openweathermap.org/",
 
-    "not_found_1": "Sorry! I have no information about this city. Try again or send me your GPS location",
+    "not_found_1": "Sorry! I have no information about this city. Try again or send me your GPS location.",
 
-    "send_weather": "{0}\nWeather forecast for today.\n{weather}.\n"
-                    "Daily temperature is around {temp_day}C°, feels like {feels_like_day}C°.\n"
-                    "Night temperature near {temp_night}C°, feels like {feels_like_night}C°.\n"
+    "connection error": "Sorry! An unexpected error occured.\nPlease, try again later!",
+
+    "send_weather": "{0}\n\nWeather forecast for {date}.\n\n{weather}.\n\n"
+                    "Daily temperature around {temp_day}C°.\nFeels like {feels_like_day}C°.\n"
+                    "Night temperature near {temp_night}C°. \nFeels like {feels_like_night}C°.\n\n"
                     "Humidity is {humidity}%.\nWind speed - {wind_speed} m\s."
 }
-
