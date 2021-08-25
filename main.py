@@ -1,4 +1,3 @@
-import os
 import logging
 from datetime import date
 
@@ -6,11 +5,12 @@ import telebot
 from telebot import types
 from flask import Flask, request
 
-
-from config import BOT_TOKEN, APP_URL
 from url_functions import *
 from weather_bot_phrases import bot_phrases
-from boto.s3.connection import S3Connection
+
+BOT_TOKEN = os.environ['BOT_TOKEN']
+APP_URL = os.environ['APP_URL']
+
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
@@ -22,10 +22,6 @@ logging.basicConfig(
     filemode="a",
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
-
-
-BOT_TOKEN = S3Connection(os.environ[BOT_TOKEN])
-APP_URL = S3Connection(os.environ[APP_URL])
 
 
 def parse_weather(weather_json_response, days=0):

@@ -2,15 +2,11 @@ import os
 
 import requests
 from requests import exceptions
-from boto.s3.connection import S3Connection
 
-from config import OPEN_WEATHER_TOKEN, URL_GET_WEATHER, URL_GET_COORDS, URL_GET_AREA
-
-
-OPEN_WEATHER_TOKEN = S3Connection(os.environ[OPEN_WEATHER_TOKEN])
-URL_GET_WEATHER = S3Connection(os.environ[URL_GET_WEATHER])
-URL_GET_COORDS = S3Connection(os.environ[URL_GET_COORDS])
-URL_GET_AREA = S3Connection(os.environ[URL_GET_AREA])
+OPEN_WEATHER_TOKEN = os.environ['OPEN_WEATHER_TOKEN']
+URL_GET_WEATHER = os.environ['URL_GET_WEATHER']
+URL_GET_COORDS = os.environ['URL_GET_COORDS']
+URL_GET_AREA = os.environ['URL_GET_AREA']
 
 
 def get_coords_from_text(message) -> dict:
