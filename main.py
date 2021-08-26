@@ -3,6 +3,7 @@ from datetime import date
 
 import telebot
 from telebot import types
+from flask import Flask, request
 
 from url_functions import *
 from weather_bot_phrases import bot_phrases
@@ -12,6 +13,7 @@ APP_URL = os.environ['APP_URL']
 
 
 bot = telebot.TeleBot(BOT_TOKEN)
+app = Flask(__name__)
 
 
 logging.basicConfig(
@@ -118,10 +120,9 @@ def send_weather(message):
     except (KeyError, exceptions.HTTPError):
         bot.reply_to(message, bot_phrases["not_found_1"])
     except ConnectionError:
-        logging.critical("Wrong URL request")
+        logging.critical("ConnectionError")
         bot.reply_to(message, bot_phrases["connection error"])
     else:
-        logging.debug("User`s request")
         bot.reply_to(message, bot_phrases["send_weather"].format(area, **weather_info), reply_markup=generate_markup())
 
 
@@ -152,9 +153,24 @@ def send_additional_forecast(call):
     except (KeyError, exceptions.HTTPError):
         bot.reply_to(call.message, bot_phrases["not_found_1"])
     except ConnectionError:
-        logging.critical("Wrong URL request")
+        logging.critical("ConnectionError")
         bot.reply_to(call.message, bot_phrases["connection error"])
 
 
+@app.route('/' + BOT_TOKEN, methods=['POST'])
+def get_message():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+
+@app.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url=APP_URL + BOT_TOKEN)
+    return "!", 200
+
+
 if __name__ == '__main__':
-    bot.polling()
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
