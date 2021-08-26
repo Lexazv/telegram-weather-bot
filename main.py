@@ -138,7 +138,6 @@ def send_additional_forecast(call):
     :return: None
     """
     try:
-        logging.debug("User`s request")
         area = call.message.text.split("\n")[0]
         coords = get_coords_from_text(area)
 
