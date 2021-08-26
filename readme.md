@@ -1,6 +1,6 @@
 # Telegram Weather Bot description
 
-[Weather Bot for Telegram. This Bot receives information from user and replies with weather forecast. </br>](t.me/oz_weather_bot)
+[Weather Bot for Telegram. This Bot receives information from user and replies with weather forecast. </br>](https://t.me/oz_weather_bot)
 
 Receives weather information from [OpenWeather](https://openweathermap.org/).
 
