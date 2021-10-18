@@ -1,71 +1,23 @@
-import logging
-from datetime import date
+import os
 
-import telebot
-from telebot import types
+from telebot import types, TeleBot
 from flask import Flask, request
+from requests.exceptions import HTTPError
 
-from url_functions import *
-from weather_bot_phrases import bot_phrases
+from url_functions import get_weather_from_coords, get_area_from_coords, \
+    get_coords_from_text
+from messages import messages
+from bot_methods import parse_weather
+from keyboards import get_additional_forecast_keyboard, \
+    get_forecast_keyboard
+
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 APP_URL = os.environ['APP_URL']
 
 
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = TeleBot(BOT_TOKEN)
 app = Flask(__name__)
-
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename="weather_bot_logfile.log",
-    filemode="a",
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
-
-def parse_weather(weather_json_response, days=0):
-    """
-    Parses URL_GET_WEATHER response.
-
-    :param weather_json_response: json-formatted response from URL_GET_WEATHER
-    :type weather_json_response: dict
-    :param days: number of days, user wants to know about, days=0 means present day
-    :type days: int
-
-    :raises KeyError: if wrong weather_json_response
-
-    :rtype: dict
-    :return: weather information, which will be sent to user
-    """
-    weather_info = {
-        "date": date.fromtimestamp(weather_json_response["daily"][days]["dt"]),
-        "weather": weather_json_response["daily"][days]["weather"][0]["main"],
-        "temp_day": round(weather_json_response["daily"][days]["temp"]["day"], 1),
-        "temp_night": round(weather_json_response["daily"][days]["temp"]["night"], 1),
-        "feels_like_day": round(weather_json_response["daily"][days]["feels_like"]["day"], 1),
-        "feels_like_night": round(weather_json_response["daily"][days]["feels_like"]["night"], 1),
-        "humidity": weather_json_response["daily"][days]["humidity"],
-        "wind_speed": weather_json_response["daily"][days]["wind_speed"]
-    }
-    return weather_info
-
-
-def generate_markup():
-    """
-    Generates inline keyboard.
-
-    :return: markup
-    """
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    start_button = types.InlineKeyboardButton(
-        "Get 3 days forecast", callback_data=3
-    )
-    help_button = types.InlineKeyboardButton(
-        "Get 5 days forecast", callback_data=5
-    )
-    markup.add(start_button, help_button)
-    return markup
 
 
 @bot.message_handler(commands=['start'])
@@ -77,7 +29,10 @@ def send_welcome(message):
 
     :return: None
     """
-    bot.send_message(message.chat.id, bot_phrases["welcome_1"])
+    bot.send_message(
+        message.chat.id, messages["welcome_1"], 
+        reply_markup=get_forecast_keyboard()
+    )
 
 
 @bot.message_handler(commands=['help'])
@@ -89,7 +44,7 @@ def send_info(message):
 
     :return: None
     """
-    bot.send_message(message.chat.id, bot_phrases["help_1"])
+    bot.send_message(message.chat.id, messages["help_1"])
 
 
 @bot.message_handler(content_types=['text', 'location'])
@@ -107,6 +62,7 @@ def send_weather(message):
         if message.content_type == 'text':
             area = message.text
             coords = get_coords_from_text(area)
+
         else:
             coords = {
                 'lat': message.location.latitude,
@@ -117,13 +73,17 @@ def send_weather(message):
         weather_json_response = get_weather_from_coords(coords)
         weather_info = parse_weather(weather_json_response)
 
-    except (KeyError, exceptions.HTTPError):
-        bot.reply_to(message, bot_phrases["not_found_1"])
+    except (KeyError, HTTPError):
+        bot.send_message(message.chat.id, messages["not_found_1"])
+
     except ConnectionError:
-        logging.critical("ConnectionError")
-        bot.reply_to(message, bot_phrases["connection error"])
+        bot.send_message(message.chat.id, messages["connection error"])
+
     else:
-        bot.reply_to(message, bot_phrases["send_weather"].format(area, **weather_info), reply_markup=generate_markup())
+        bot.send_message(
+            message.chat.id, messages["send_weather"].format(area, **weather_info), 
+            reply_markup=get_additional_forecast_keyboard()
+        )
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -146,20 +106,23 @@ def send_additional_forecast(call):
         days = 1
         while days <= int(call.data):
             weather_info = parse_weather(weather_json_response, days)
-            bot.send_message(call.message.chat.id, bot_phrases["send_weather"].format(area, **weather_info))
+            bot.send_message(
+                call.message.chat.id, 
+                messages["send_weather"].format(area, **weather_info)
+            )
             days += 1
 
-    except (KeyError, exceptions.HTTPError):
-        bot.reply_to(call.message, bot_phrases["not_found_1"])
+    except (KeyError, HTTPError):
+        bot.send_message(call.message.chat.id, messages["not_found_1"])
+        
     except ConnectionError:
-        logging.critical("ConnectionError")
-        bot.reply_to(call.message, bot_phrases["connection error"])
+        bot.send_message(call.message.chat.id, messages["connection error"])
 
 
 @app.route('/' + BOT_TOKEN, methods=['POST'])
 def get_message():
     json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
+    update = types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "!", 200
 
