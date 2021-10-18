@@ -29,6 +29,8 @@ def get_forecast_keyboard():
     forecast_keyboard = types.ReplyKeyboardMarkup(
         row_width=1, resize_keyboard=True
     )
-    get_forecast_btn = types.KeyboardButton('\U0001F305 Get forecast')
+    get_forecast_btn = types.KeyboardButton(
+        '\U0001F305 Get forecast', request_location=True
+    )
     forecast_keyboard.add(get_forecast_btn)
     return forecast_keyboard

@@ -1,6 +1,4 @@
-config.py
 /venv/
 /.idea/
 /.git
-/.__pycache__
-weather_bot_logfile.log
+/__pycache__
