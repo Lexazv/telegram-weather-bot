@@ -1,13 +1,8 @@
 from telebot import types
 
 
-def get_additional_forecast_keyboard():
-    """ 
-    Generates inline keyboard.
-
-    Returns:
-        types.InlineKeyboardMarkup: additional forcast keyboard.
-    """
+def get_add_keyboard():
+    """ Generate inline keyboard """
     additional_forecast_keyboard = types.InlineKeyboardMarkup(row_width=1)
     three_days_btn = types.InlineKeyboardButton(
         "Get 3 days forecast", callback_data=3
@@ -19,13 +14,8 @@ def get_additional_forecast_keyboard():
     return additional_forecast_keyboard
 
 
-def get_forecast_keyboard():
-    """ 
-    Generates keyboard to get forecast by GPS.
-
-    Returns:
-        types.ReplyKeyboardMarkup: get forecast keyboard.
-    """
+def get_main_keyboard():
+    """ Generate keyboard to get forecast by GPS """
     forecast_keyboard = types.ReplyKeyboardMarkup(
         row_width=1, resize_keyboard=True
     )

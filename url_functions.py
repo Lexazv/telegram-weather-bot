@@ -10,75 +10,30 @@ URL_GET_AREA = os.environ['URL_GET_AREA']
 
 
 def get_coords_from_text(message) -> dict:
-    """
-    Returns latitude and longitude of the city entered by the user.
-
-    :param message: city name or ISO 3166 city code, sent by user.
-    :type message: str
-
-    :raises HTTPError: if user send non-existing city
-    :raises ConnectionError: if wrong URL_GET_COORDS
-
-    :rtype: dict
-    :return: dict with city latitude and longitude
-    """
-    response = requests.get(
-        URL_GET_COORDS.format(message, OPEN_WEATHER_TOKEN)
-    )
-    response_city_coord = response.json()
-
-    if response_city_coord == [] or response.status_code == 404:
+    """ Get area coords """
+    response = requests.get(URL_GET_COORDS.format(message, OPEN_WEATHER_TOKEN))
+    response_json = response.json()
+    if not response_json or response.status_code == 404:
         raise exceptions.HTTPError
-
-    coords = {
-        'lat': response_city_coord[0]["lat"],
-        'lon': response_city_coord[0]["lon"]
-    }
+    coords = {'lat': response_json[0]["lat"], 'lon': response_json[0]["lon"]}
     return coords
 
 
-def get_weather_from_coords(coords: dict) -> dict:
-    """
-    Returns response with weather information from latitude and longitude.
-
-    :param coords: city coordinates
-    :type coords: dict
-
-    :raises HTTPError: if coords are wrong
-    :raises ConnectionError: if wrong URL_GET_WEATHER
-
-    :rtype: dict
-    :return: json-formatted response from URL_GET_WEATHER
-    """
+def get_weather_data_from_coords(coords: dict) -> dict:
+    """ Get weather data from area chords """
     response = requests.get(
         URL_GET_WEATHER.format(coords['lat'], coords['lon'], OPEN_WEATHER_TOKEN)
     )
-
     response.raise_for_status()
+    weather_data = response.json()
+    return weather_data
 
-    weather_json_response = response.json()
-    return weather_json_response
 
-
-def get_area_from_coords(coords: dict) -> str:
-    """
-    Returns area name from latitude and longitude.
-
-    :param coords: city coordinates
-    :type coords: dict
-
-    :raises ConnectionError: if wrong URL_GET_AREA
-    :raises HTTPError: if area not found
-
-    :rtype: str
-    :return: area name
-    """
+def get_area_name_from_coords(coords: dict) -> str:
+    """ Get area name from area coords """
     response = requests.get(
         URL_GET_AREA.format(coords['lat'], coords['lon'], OPEN_WEATHER_TOKEN)
     )
-
     response.raise_for_status()
-
-    area_data = response.json()
-    area = area_data[0]["name"]
-    return area
+    area_name = response.json()[0].get('name')
+    return area_name
